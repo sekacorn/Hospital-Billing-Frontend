@@ -1,0 +1,590 @@
+Author: Sekacorn
+Project: Hospital Billing Frontend
+Technology: Angular 17, TypeScript, Bootstrap 5
+Backend API: http://localhost:8080/api
+
+================================================================================
+                    HOSPITAL BILLING FRONTEND ARCHITECTURE
+================================================================================
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           ANGULAR APPLICATION                               │
+│                          main.ts (Bootstrap)                                │
+│                                                                             │
+│  bootstrapApplication(AppComponent, appConfig)                              │
+│  - Standalone component architecture                                        │
+│  - HttpClient configuration                                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ Initializes
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            ROOT COMPONENT                                   │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ AppComponent                                                │           │
+│  │ @Component({                                                │           │
+│  │   selector: 'app-root',                                     │           │
+│  │   standalone: true,                                         │           │
+│  │   templateUrl: './app.component.html'                       │           │
+│  │ })                                                          │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - title: string = 'Hospital Billing System'                │           │
+│  │                                                             │           │
+│  │ Template Structure:                                         │           │
+│  │ - Navigation Bar (Bootstrap)                                │           │
+│  │ - Main Content Area                                         │           │
+│  │   - BillingComponent                                        │           │
+│  │ - Footer                                                    │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ Contains
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         COMPONENT LAYER                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ BillingComponent                                            │           │
+│  │ @Component({                                                │           │
+│  │   selector: 'app-billing',                                  │           │
+│  │   standalone: true,                                         │           │
+│  │   templateUrl: './billing.component.html'                   │           │
+│  │ })                                                          │           │
+│  │                                                             │           │
+│  │ Dependencies:                                               │           │
+│  │ - BillingService (injected)                                 │           │
+│  │ - CommonModule (for *ngFor, *ngIf)                          │           │
+│  │ - FormsModule (for [(ngModel)])                             │           │
+│  │ - DiagnosisComponent                                        │           │
+│  │ - PhysicianComponent                                        │           │
+│  │ - TreatmentComponent                                        │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - activeTab: string = 'diagnoses'                           │           │
+│  │                                                             │           │
+│  │ Methods:                                                    │           │
+│  │ + setActiveTab(tab: string): void                           │           │
+│  │   - Manages tab switching between sections                  │           │
+│  │                                                             │           │
+│  │ Template Features:                                          │           │
+│  │ - Bootstrap Tabs Navigation                                 │           │
+│  │ - Conditional Component Rendering                           │           │
+│  │ - Responsive Grid Layout                                    │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ DiagnosisComponent                                          │           │
+│  │ @Component({                                                │           │
+│  │   selector: 'app-diagnosis',                                │           │
+│  │   standalone: true                                          │           │
+│  │ })                                                          │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - diagnoses: Diagnosis[] = []                               │           │
+│  │ - newDiagnosis: Diagnosis                                   │           │
+│  │ - editingDiagnosis: Diagnosis | null                        │           │
+│  │ - loading: boolean = false                                  │           │
+│  │ - error: string = ''                                        │           │
+│  │                                                             │           │
+│  │ Methods:                                                    │           │
+│  │ + ngOnInit(): void                                          │           │
+│  │   - Loads all diagnoses on component initialization         │           │
+│  │                                                             │           │
+│  │ + loadDiagnoses(): void                                     │           │
+│  │   - Fetches diagnoses from BillingService                   │           │
+│  │   - Handles success and error responses                     │           │
+│  │                                                             │           │
+│  │ + createDiagnosis(): void                                   │           │
+│  │   - Validates form data                                     │           │
+│  │   - Calls service to create new diagnosis                   │           │
+│  │   - Refreshes list on success                               │           │
+│  │                                                             │           │
+│  │ + editDiagnosis(diagnosis: Diagnosis): void                 │           │
+│  │   - Sets diagnosis in edit mode                             │           │
+│  │   - Populates form with existing data                       │           │
+│  │                                                             │           │
+│  │ + updateDiagnosis(): void                                   │           │
+│  │   - Calls service to update diagnosis                       │           │
+│  │   - Refreshes list on success                               │           │
+│  │   - Resets edit mode                                        │           │
+│  │                                                             │           │
+│  │ + deleteDiagnosis(id: number): void                         │           │
+│  │   - Confirms deletion with user                             │           │
+│  │   - Calls service to delete diagnosis                       │           │
+│  │   - Removes from local array on success                     │           │
+│  │                                                             │           │
+│  │ + cancelEdit(): void                                        │           │
+│  │   - Exits edit mode                                         │           │
+│  │   - Resets form                                             │           │
+│  │                                                             │           │
+│  │ Template Features:                                          │           │
+│  │ - Bootstrap Cards for display                               │           │
+│  │ - Form with validation                                      │           │
+│  │ - Loading indicators                                        │           │
+│  │ - Error messages                                            │           │
+│  │ - Action buttons (Edit, Delete, Save, Cancel)               │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ PhysicianComponent                                          │           │
+│  │ @Component({                                                │           │
+│  │   selector: 'app-physician',                                │           │
+│  │   standalone: true                                          │           │
+│  │ })                                                          │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - physicians: Physician[] = []                              │           │
+│  │ - newPhysician: Physician                                   │           │
+│  │ - editingPhysician: Physician | null                        │           │
+│  │ - loading: boolean = false                                  │           │
+│  │ - error: string = ''                                        │           │
+│  │                                                             │           │
+│  │ Methods:                                                    │           │
+│  │ + ngOnInit(): void                                          │           │
+│  │ + loadPhysicians(): void                                    │           │
+│  │ + createPhysician(): void                                   │           │
+│  │ + editPhysician(physician: Physician): void                 │           │
+│  │ + updatePhysician(): void                                   │           │
+│  │ + deletePhysician(id: number): void                         │           │
+│  │ + cancelEdit(): void                                        │           │
+│  │                                                             │           │
+│  │ Template Features:                                          │           │
+│  │ - Physician directory table                                 │           │
+│  │ - Contact information display                               │           │
+│  │ - Specialty badges                                          │           │
+│  │ - Form for add/edit operations                              │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ TreatmentComponent                                          │           │
+│  │ @Component({                                                │           │
+│  │   selector: 'app-treatment',                                │           │
+│  │   standalone: true                                          │           │
+│  │ })                                                          │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - treatments: Treatment[] = []                              │           │
+│  │ - newTreatment: Treatment                                   │           │
+│  │ - editingTreatment: Treatment | null                        │           │
+│  │ - loading: boolean = false                                  │           │
+│  │ - error: string = ''                                        │           │
+│  │                                                             │           │
+│  │ Methods:                                                    │           │
+│  │ + ngOnInit(): void                                          │           │
+│  │ + loadTreatments(): void                                    │           │
+│  │ + createTreatment(): void                                   │           │
+│  │ + editTreatment(treatment: Treatment): void                 │           │
+│  │ + updateTreatment(): void                                   │           │
+│  │ + deleteTreatment(id: number): void                         │           │
+│  │ + cancelEdit(): void                                        │           │
+│  │                                                             │           │
+│  │ Template Features:                                          │           │
+│  │ - Treatment list with costs                                 │           │
+│  │ - Duration display                                          │           │
+│  │ - Diagnosis association dropdown                            │           │
+│  │ - Cost formatting                                           │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ Uses
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           SERVICE LAYER                                     │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌─────────────────────────────────────────────────────────────┐           │
+│  │ BillingService                                              │           │
+│  │ @Injectable({ providedIn: 'root' })                         │           │
+│  │                                                             │           │
+│  │ Properties:                                                 │           │
+│  │ - apiUrl: string = 'http://localhost:8080/api'              │           │
+│  │ - http: HttpClient (injected)                               │           │
+│  │                                                             │           │
+│  │ DIAGNOSIS API METHODS:                                      │           │
+│  │ + getAllDiagnoses(): Observable<Diagnosis[]>                │           │
+│  │   - GET /api/diagnoses                                      │           │
+│  │   - Returns array of all diagnoses                          │           │
+│  │   - Handles HTTP errors                                     │           │
+│  │                                                             │           │
+│  │ + getDiagnosisById(id: number): Observable<Diagnosis>       │           │
+│  │   - GET /api/diagnoses/{id}                                 │           │
+│  │   - Returns single diagnosis                                │           │
+│  │                                                             │           │
+│  │ + createDiagnosis(diagnosis: Diagnosis):                    │           │
+│  │   Observable<Diagnosis>                                     │           │
+│  │   - POST /api/diagnoses                                     │           │
+│  │   - Sends diagnosis data in request body                    │           │
+│  │   - Returns created diagnosis with generated ID             │           │
+│  │                                                             │           │
+│  │ + updateDiagnosis(id: number, diagnosis: Diagnosis):        │           │
+│  │   Observable<Diagnosis>                                     │           │
+│  │   - PUT /api/diagnoses/{id}                                 │           │
+│  │   - Updates existing diagnosis                              │           │
+│  │   - Returns updated diagnosis                               │           │
+│  │                                                             │           │
+│  │ + deleteDiagnosis(id: number): Observable<void>             │           │
+│  │   - DELETE /api/diagnoses/{id}                              │           │
+│  │   - Removes diagnosis from database                         │           │
+│  │   - Returns void on success                                 │           │
+│  │                                                             │           │
+│  │ PHYSICIAN API METHODS:                                      │           │
+│  │ + getAllPhysicians(): Observable<Physician[]>               │           │
+│  │   - GET /api/physicians                                     │           │
+│  │                                                             │           │
+│  │ + getPhysicianById(id: number): Observable<Physician>       │           │
+│  │   - GET /api/physicians/{id}                                │           │
+│  │                                                             │           │
+│  │ + createPhysician(physician: Physician):                    │           │
+│  │   Observable<Physician>                                     │           │
+│  │   - POST /api/physicians                                    │           │
+│  │                                                             │           │
+│  │ + updatePhysician(id: number, physician: Physician):        │           │
+│  │   Observable<Physician>                                     │           │
+│  │   - PUT /api/physicians/{id}                                │           │
+│  │                                                             │           │
+│  │ + deletePhysician(id: number): Observable<void>             │           │
+│  │   - DELETE /api/physicians/{id}                             │           │
+│  │                                                             │           │
+│  │ TREATMENT API METHODS:                                      │           │
+│  │ + getAllTreatments(): Observable<Treatment[]>               │           │
+│  │   - GET /api/treatments                                     │           │
+│  │                                                             │           │
+│  │ + getTreatmentById(id: number): Observable<Treatment>       │           │
+│  │   - GET /api/treatments/{id}                                │           │
+│  │                                                             │           │
+│  │ + createTreatment(treatment: Treatment):                    │           │
+│  │   Observable<Treatment>                                     │           │
+│  │   - POST /api/treatments                                    │           │
+│  │                                                             │           │
+│  │ + updateTreatment(id: number, treatment: Treatment):        │           │
+│  │   Observable<Treatment>                                     │           │
+│  │   - PUT /api/treatments/{id}                                │           │
+│  │                                                             │           │
+│  │ + deleteTreatment(id: number): Observable<void>             │           │
+│  │   - DELETE /api/treatments/{id}                             │           │
+│  │                                                             │           │
+│  │ ERROR HANDLING:                                             │           │
+│  │ - All methods include error handling                        │           │
+│  │ - Returns user-friendly error messages                      │           │
+│  │ - Logs errors to console for debugging                      │           │
+│  └─────────────────────────────────────────────────────────────┘           │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ Works with
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            MODEL LAYER                                      │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  ┌────────────────────────────────────────────────────────────┐            │
+│  │ Diagnosis (Interface)                                      │            │
+│  │ File: src/app/models/diagnosis.ts                          │            │
+│  │                                                            │            │
+│  │ Properties:                                                │            │
+│  │ - id?: number                                              │            │
+│  │   (Optional, generated by backend)                         │            │
+│  │ - code: string                                             │            │
+│  │   (ICD-10 diagnosis code, max 50 chars)                    │            │
+│  │ - description: string                                      │            │
+│  │   (Diagnosis description, max 500 chars)                   │            │
+│  │ - category: string                                         │            │
+│  │   (Diagnosis category, max 100 chars)                      │            │
+│  │ - isActive: boolean                                        │            │
+│  │   (Active status flag)                                     │            │
+│  │                                                            │            │
+│  │ Usage:                                                     │            │
+│  │ - Type safety for diagnosis objects                        │            │
+│  │ - Matches backend Diagnosis entity                         │            │
+│  │ - Used in components and services                          │            │
+│  └────────────────────────────────────────────────────────────┘            │
+│                                                                             │
+│  ┌────────────────────────────────────────────────────────────┐            │
+│  │ Physician (Interface)                                      │            │
+│  │ File: src/app/models/physician.ts                          │            │
+│  │                                                            │            │
+│  │ Properties:                                                │            │
+│  │ - id?: number                                              │            │
+│  │   (Optional, generated by backend)                         │            │
+│  │ - firstName: string                                        │            │
+│  │   (Physician first name, max 100 chars)                    │            │
+│  │ - lastName: string                                         │            │
+│  │   (Physician last name, max 100 chars)                     │            │
+│  │ - specialty: string                                        │            │
+│  │   (Medical specialty, max 100 chars)                       │            │
+│  │ - email: string                                            │            │
+│  │   (Email address, max 100 chars)                           │            │
+│  │ - phoneNumber: string                                      │            │
+│  │   (Contact phone number, max 20 chars)                     │            │
+│  │ - licenseNumber: string                                    │            │
+│  │   (Medical license number, max 50 chars)                   │            │
+│  │                                                            │            │
+│  │ Usage:                                                     │            │
+│  │ - Type safety for physician objects                        │            │
+│  │ - Matches backend Physician entity                         │            │
+│  │ - Used in components and services                          │            │
+│  └────────────────────────────────────────────────────────────┘            │
+│                                                                             │
+│  ┌────────────────────────────────────────────────────────────┐            │
+│  │ Treatment (Interface)                                      │            │
+│  │ File: src/app/models/treatment.ts                          │            │
+│  │                                                            │            │
+│  │ Properties:                                                │            │
+│  │ - id?: number                                              │            │
+│  │   (Optional, generated by backend)                         │            │
+│  │ - code: string                                             │            │
+│  │   (Treatment code, max 50 chars)                           │            │
+│  │ - name: string                                             │            │
+│  │   (Treatment name, max 200 chars)                          │            │
+│  │ - description: string                                      │            │
+│  │   (Treatment description, max 500 chars)                   │            │
+│  │ - cost: number                                             │            │
+│  │   (Treatment cost in dollars)                              │            │
+│  │ - duration: number                                         │            │
+│  │   (Duration in minutes)                                    │            │
+│  │ - diagnosisId: number                                      │            │
+│  │   (Associated diagnosis ID)                                │            │
+│  │                                                            │            │
+│  │ Usage:                                                     │            │
+│  │ - Type safety for treatment objects                        │            │
+│  │ - Matches backend Treatment entity                         │            │
+│  │ - Used in components and services                          │            │
+│  └────────────────────────────────────────────────────────────┘            │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ HTTP Communication
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                           HTTP CLIENT LAYER                                 │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Angular HttpClient                                                         │
+│  - Provided by HttpClientModule                                             │
+│  - Injected into BillingService                                             │
+│  - Handles HTTP requests/responses                                          │
+│  - Automatic JSON serialization/deserialization                             │
+│  - Observable-based API                                                     │
+│  - Error handling with catchError                                           │
+│                                                                             │
+│  Request Headers:                                                           │
+│  - Content-Type: application/json                                           │
+│  - Accept: application/json                                                 │
+│                                                                             │
+│  CORS Configuration:                                                        │
+│  - Origin: http://localhost:4200                                           │
+│  - Handled by backend WebConfig                                             │
+│  - Allows all standard HTTP methods                                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                      │
+                                      │ Communicates with
+                                      │
+                                      ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         BACKEND REST API                                    │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                             │
+│  Base URL: http://localhost:8080/api                                       │
+│                                                                             │
+│  Endpoints:                                                                 │
+│  - /diagnoses              (GET, POST)                                      │
+│  - /diagnoses/{id}         (GET, PUT, DELETE)                               │
+│  - /physicians             (GET, POST)                                      │
+│  - /physicians/{id}        (GET, PUT, DELETE)                               │
+│  - /treatments             (GET, POST)                                      │
+│  - /treatments/{id}        (GET, PUT, DELETE)                               │
+│                                                                             │
+│  Response Format: JSON                                                      │
+│  Status Codes:                                                              │
+│  - 200 OK (successful GET, PUT)                                             │
+│  - 201 Created (successful POST)                                            │
+│  - 204 No Content (successful DELETE)                                       │
+│  - 404 Not Found (resource not found)                                       │
+│  - 500 Internal Server Error (server error)                                 │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+================================================================================
+                         UI/UX DESIGN LAYER (Bootstrap 5)
+================================================================================
+
+Navigation:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  Hospital Billing System                             [Home] [About]        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Tab Navigation:
+┌──────────────┬──────────────┬──────────────┐
+│  Diagnoses   │  Physicians  │  Treatments  │  (Active tab highlighted)
+└──────────────┴──────────────┴──────────────┘
+
+Content Layout:
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  Active Component Content Area:                                            │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────┐          │
+│  │ Form Section (Add/Edit)                                      │          │
+│  │ - Input fields with validation                               │          │
+│  │ - Submit/Cancel buttons                                      │          │
+│  └──────────────────────────────────────────────────────────────┘          │
+│                                                                             │
+│  ┌──────────────────────────────────────────────────────────────┐          │
+│  │ Data Display Section (Cards/Table)                           │          │
+│  │ - List of items                                              │          │
+│  │ - Edit/Delete buttons for each item                          │          │
+│  │ - Loading indicators                                         │          │
+│  │ - Error messages                                             │          │
+│  └──────────────────────────────────────────────────────────────┘          │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+Bootstrap Components Used:
+- Navbar (navbar, navbar-expand-lg)
+- Nav Tabs (nav, nav-tabs)
+- Cards (card, card-body, card-title)
+- Forms (form-control, form-label)
+- Buttons (btn, btn-primary, btn-danger, btn-secondary)
+- Alerts (alert, alert-danger, alert-success)
+- Tables (table, table-striped, table-hover)
+- Badges (badge, bg-primary, bg-success)
+- Spinners (spinner-border) for loading states
+
+Responsive Design:
+- Mobile-first approach
+- Breakpoints: xs, sm, md, lg, xl
+- Collapsible navigation on mobile
+- Stackable cards on small screens
+
+================================================================================
+                         DATA FLOW & STATE MANAGEMENT
+================================================================================
+
+1. Component Initialization
+   │
+   ├─→ ngOnInit() called
+   ├─→ Component calls service method
+   │
+2. Service Layer
+   │
+   ├─→ BillingService method called
+   ├─→ HttpClient makes HTTP request to backend
+   │
+3. HTTP Request
+   │
+   ├─→ Request sent to http://localhost:8080/api/*
+   ├─→ CORS headers validated
+   │
+4. Backend Processing
+   │
+   ├─→ Backend processes request
+   ├─→ Returns JSON response
+   │
+5. Response Handling
+   │
+   ├─→ Observable emits data
+   ├─→ Service returns Observable to component
+   │
+6. Component Updates
+   │
+   ├─→ Component subscribes to Observable
+   ├─→ Success: Updates local state array
+   ├─→ Error: Displays error message
+   │
+7. View Rendering
+   │
+   ├─→ Angular change detection triggers
+   ├─→ Template re-renders with new data
+   ├─→ User sees updated content
+
+State Management Pattern:
+- Local component state (no global state management)
+- Component arrays: diagnoses[], physicians[], treatments[]
+- Loading flags: loading boolean
+- Error messages: error string
+- Edit mode: editingDiagnosis/Physician/Treatment object
+
+================================================================================
+                         BUILD & DEPLOYMENT CONFIGURATION
+================================================================================
+
+Build Tool: Angular CLI 17
+Node Version: 18+
+Package Manager: npm
+
+Development Server:
+- Port: 4200
+- Command: npm start / ng serve
+- Hot Module Replacement (HMR) enabled
+
+Production Build:
+- Command: npm run build
+- Output: dist/billingapp/browser
+- Optimizations:
+  - AOT (Ahead-of-Time) compilation
+  - Tree shaking
+  - Minification
+  - Code splitting
+
+Build Scripts:
+- build-run.sh: Flexible script with options
+  --skip-install, --skip-tests, --skip-build
+  --docker, --prod
+
+Docker Deployment:
+- Multi-stage Dockerfile
+- Stage 1: Node.js build
+- Stage 2: Nginx Alpine serve
+- Port: 80 (mapped from container)
+
+Nginx Configuration:
+- SPA routing support (try_files)
+- Gzip compression
+- Cache control for static assets
+- MIME types configuration
+
+================================================================================
+                              TESTING FRAMEWORK
+================================================================================
+
+Unit Testing:
+- Framework: Jasmine 5.1
+- Runner: Karma 6.4
+- Browser: Chrome/ChromeHeadless
+
+Test Configuration:
+- File: karma.conf.js
+- Test files: *.spec.ts
+- Coverage: Istanbul
+
+Test Commands:
+- npm test
+- ng test --watch=false --browsers=ChromeHeadless
+- ng test --code-coverage
+
+Component Testing:
+- BillingComponent tests
+- DiagnosisComponent tests
+- PhysicianComponent tests
+- TreatmentComponent tests
+
+Service Testing:
+- BillingService tests
+- HTTP mocking with HttpClientTestingModule
+
+================================================================================
